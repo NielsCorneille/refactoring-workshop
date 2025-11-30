@@ -20,8 +20,8 @@ app.get('/api/season', (req: Request, res: Response) => {
     const racers = season.getRacers();
     const resultsMap = season.getResults();
     const results = Array.from(resultsMap.entries()).map(([key, points]) => ({
-        racerId: key.racerId,
-        racerName: key.racerName,
+        racerId: key.split('|')[0],
+        racerName: key.split('|')[1],
         points: points
     }));
 
@@ -32,18 +32,18 @@ app.get('/api/season', (req: Request, res: Response) => {
 app.post('/api/season/race', (req: Request, res: Response) => {
     const { raceName } = req.body;
 
-    const race = season.addRace(raceName);
+    const raceId = season.addRace(raceName);
 
-    res.json({ success: true, raceId: race.id });
+    res.json({ success: true, raceId });
 });
 
 // Add racer
 app.post('/api/season/racer', (req: Request, res: Response) => {
     const { racerName, isAI } = req.body;
 
-    const racer = season.addRacer(racerName, isAI || false);
+    const racerId = season.addRacer(racerName, isAI || false);
 
-    res.json({ success: true, racerId: racer.id });
+    res.json({ success: true, racerId: racerId });
 });
 
 // Add result

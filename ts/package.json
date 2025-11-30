@@ -7,9 +7,14 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "dev": "ts-node src/server.ts",
-    "watch": "tsc --watch"
+    "watch": "tsc --watch",
+    "test": "npx jest"
   },
-  "keywords": ["racing", "express", "typescript"],
+  "keywords": [
+    "racing",
+    "express",
+    "typescript"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -17,9 +22,12 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
+    "@jest/globals": "^30.2.0",
     "@types/express": "^4.17.21",
     "@types/node": "^20.10.0",
     "@types/uuid": "^9.0.7",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   }
