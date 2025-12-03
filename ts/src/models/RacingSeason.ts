@@ -19,10 +19,21 @@ export class Racer {
   }
 }
 
+export class Position {
+  public raceId: string;
+  public racerId: string;
+  public position: number;
+  constructor(raceId: string, racerId: string, position: number) {
+    this.raceId = raceId;
+    this.racerId = racerId;
+    this.position = position;
+  }
+}
+
 export class RacingSeason {
     private _races: Map<string, Race> = new Map();
     private _racers: Map<string, Racer> = new Map();
-    private _positions: Map<string, number> = new Map();
+    private _positions: Map<string, Position> = new Map();
 
     addRace(raceName: string): string {
         const race = new Race(raceName);
@@ -46,17 +57,17 @@ export class RacingSeason {
 
     addResult(raceId: string, racerId: string, position: number): void {
         const key = `${raceId}|${racerId}`;
-        this._positions.set(key, position);
+        const positionO = new Position(raceId, racerId, position);
+        this._positions.set(key, positionO);
     }
 
     getRacerPositions(racerId: string): { raceName: string, position: number }[] {
         const results: { raceName: string, position: number }[] = [];
-        for (const position of this._positions) {
-            const [raceId, posRacerId] = position[0].split('|');
-            if (posRacerId === racerId) {
-                const race = this._races.get(raceId);
+        for (const position of this._positions.values()) {
+            if (position.racerId === racerId) {
+                const race = this._races.get(position.raceId);
                 if (race) {
-                    results.push({ raceName: race.name, position: position[1] });
+                    results.push({ raceName: race.name, position: position.position });
                 }
             }
         }
@@ -67,11 +78,10 @@ export class RacingSeason {
         const results = new Map<string, number>();
         for (const racer of this._racers.values()) {
             let totalPoints = 0;
-            for (const position of this._positions) {
-                const [, posRacerId] = position[0].split('|');
-                if (posRacerId === racer.id) {
+            for (const position of this._positions.values()) {
+                if (position.racerId === racer.id) {
                     let points = 0;
-                    switch (position[1]) {
+                    switch (position.position) {
                         case 1:
                             points = 25;
                             break;

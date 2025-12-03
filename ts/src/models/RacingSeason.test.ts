@@ -6,8 +6,8 @@ describe('RacingSeason', () => {
   let racer1Id: string;
   let racer2Id: string;
   let racer3Id: string;
-  let race1Id: string;
-  let race2Id: string;
+  let monacoId: string;
+  let spaId: string;
 
   beforeAll(() => {
     racingSeason = new RacingSeason();
@@ -15,14 +15,14 @@ describe('RacingSeason', () => {
     racer1Id = racingSeason.addRacer("Driver A", false);
     racer2Id = racingSeason.addRacer("Driver B", false);
     racer3Id = racingSeason.addRacer("Driver C", true);
-    race1Id = racingSeason.addRace("Monaco");
-    race2Id = racingSeason.addRace("Spa");
-    racingSeason.addResult(race1Id, racer1Id, 3);
-    racingSeason.addResult(race2Id, racer1Id, 3);
-    racingSeason.addResult(race1Id, racer2Id, 1);
-    racingSeason.addResult(race2Id, racer2Id, 2);
-    racingSeason.addResult(race1Id, racer3Id, 4);
-    racingSeason.addResult(race2Id, racer3Id, 4);
+    monacoId = racingSeason.addRace("Monaco");
+    spaId = racingSeason.addRace("Spa");
+    racingSeason.addResult(monacoId, racer1Id, 3);
+    racingSeason.addResult(spaId, racer1Id, 3);
+    racingSeason.addResult(monacoId, racer2Id, 1);
+    racingSeason.addResult(spaId, racer2Id, 2);
+    racingSeason.addResult(monacoId, racer3Id, 4);
+    racingSeason.addResult(spaId, racer3Id, 4);
   });
 
   test('getRacerPositions should return entered positions', () => {
