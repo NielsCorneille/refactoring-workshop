@@ -16,51 +16,51 @@ const season: RacingSeason = new RacingSeason();
 
 // Get season data
 app.get('/api/season', (req: Request, res: Response) => {
-    const races = Array.from(season.getRaces().entries()).map(([id, name]) => ({ id, name }));
-    const racers = Array.from(season.getRacers().entries()).map(([id, name]) => ({ id, name }));
+    const races = season.getRaces();
+    const racers = season.getRacers();
     const resultsMap = season.getResults();
     const results = Array.from(resultsMap.entries()).map(([key, points]) => ({
         racerId: key.racerId,
         racerName: key.racerName,
         points: points
     }));
-    
+
     res.json({ races, racers, results });
 });
 
 // Add race
 app.post('/api/season/race', (req: Request, res: Response) => {
     const { raceName } = req.body;
-    
-    const raceId = season.addRace(raceName);
-    
-    res.json({ success: true, raceId });
+
+    const race = season.addRace(raceName);
+
+    res.json({ success: true, raceId: race.id });
 });
 
 // Add racer
 app.post('/api/season/racer', (req: Request, res: Response) => {
     const { racerName, isAI } = req.body;
-    
-    const racerId = season.addRacer(racerName, isAI || false);
-    
-    res.json({ success: true, racerId });
+
+    const racer = season.addRacer(racerName, isAI || false);
+
+    res.json({ success: true, racerId: racer.id });
 });
 
 // Add result
 app.post('/api/season/result', (req: Request, res: Response) => {
     const { raceId, racerId, position } = req.body;
-    
+
     season.addResult(raceId, racerId, parseInt(position));
-    
+
     res.json({ success: true });
 });
 
 // Get racer positions
 app.get('/api/season/racer/:racerId/positions', (req: Request, res: Response) => {
     const { racerId } = req.params;
-    
+
     const positions = season.getRacerPositions(racerId);
-    
+
     res.json(positions);
 });
 

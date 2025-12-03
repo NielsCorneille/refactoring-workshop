@@ -1,32 +1,47 @@
 import { v4 as uuidv4 } from 'uuid';
 
+export class Race {
+  public id: string;
+  public name: string;
+
+  constructor(name: string) {
+    this.id = uuidv4();
+    this.name = name;
+  }
+}
+export class Racer {
+  public id: string;
+  public name: string;
+
+  constructor(name: string, isAI: boolean) {
+    this.id = uuidv4();
+    this.name = isAI ? `${name} [AI]` : name;
+  }
+}
+
 export class RacingSeason {
-    private _races: Map<string, string> = new Map();
-    private _racers: Map<string, string> = new Map();
+    private _races: Map<string, Race> = new Map();
+    private _racers: Map<string, Racer> = new Map();
     private _positions: Map<string, number> = new Map();
 
-    addRace(raceName: string): string {
-        const raceId = uuidv4();
-        this._races.set(raceId, raceName);
-        return raceId;
+    addRace(raceName: string): Race {
+        const race = new Race(raceName);
+        this._races.set(race.id, race);
+        return race;
     }
 
-    getRaces(): Map<string, string> {
-        return this._races;
+    getRaces(): Race[] {
+        return Array.from(this._races.values());
     }
 
-    addRacer(racerName: string, isAI: boolean): string {
-        const racerId = uuidv4();
-        if (isAI) {
-            racerName = `${racerName} [AI]`;
-        }
-
-        this._racers.set(racerId, racerName);
-        return racerId;
+    addRacer(racerName: string, isAI: boolean): Racer {
+        const racer = new Racer(racerName, isAI);
+        this._racers.set(racer.id, racer);
+        return racer;
     }
 
-    getRacers(): Map<string, string> {
-        return this._racers;
+    getRacers(): Racer[] {
+        return Array.from(this._racers.values());
     }
 
     addResult(raceId: string, racerId: string, position: number): void {
@@ -39,7 +54,10 @@ export class RacingSeason {
         for (const position of this._positions) {
             const [raceId, posRacerId] = position[0].split('|');
             if (posRacerId === racerId) {
-                results.push({ raceName: this._races.get(raceId)!, position: position[1] });
+                const race = this._races.get(raceId);
+                if (race) {
+                    results.push({ raceName: race.name, position: position[1] });
+                }
             }
         }
         return results;
@@ -47,11 +65,11 @@ export class RacingSeason {
 
     getResults(): Map<{ racerId: string, racerName: string }, number> {
         const results = new Map<{ racerId: string, racerName: string }, number>();
-        for (const racer of this._racers) {
+        for (const racer of this._racers.values()) {
             let totalPoints = 0;
             for (const position of this._positions) {
                 const [, posRacerId] = position[0].split('|');
-                if (posRacerId === racer[0]) {
+                if (posRacerId === racer.id) {
                     let points = 0;
                     switch (position[1]) {
                         case 1:
@@ -89,7 +107,7 @@ export class RacingSeason {
                     totalPoints += points;
                 }
             }
-            results.set({ racerId: racer[0], racerName: racer[1] }, totalPoints);
+            results.set({ racerId: racer.id, racerName: racer.name }, totalPoints);
         }
 
         return new Map([...results.entries()].sort((a, b) => b[1] - a[1]));
