@@ -50,3 +50,33 @@ describe('RacingSeason', () => {
     expect(`${racer3Id}|Driver C [AI]`).toBe(Array.from(results.entries())[2][0]);
   });
 });
+
+describe('RacingSeason winning streak', () => {
+  let racingSeason: RacingSeason;
+  let racer1Id: string;
+  let racer2Id: string;
+  let monacoId: string;
+  let spaId: string;
+  let monzaId: string;
+
+  beforeAll(() => {
+    racingSeason = new RacingSeason();
+
+    racer1Id = racingSeason.addRacer("Driver A", false);
+    racer2Id = racingSeason.addRacer("Driver B", false);
+    monacoId = racingSeason.addRace("Monaco");
+    spaId = racingSeason.addRace("Spa");
+    monzaId = racingSeason.addRace("Monza");
+    racingSeason.addResult(monacoId, racer1Id, 1);
+    racingSeason.addResult(spaId, racer1Id, 1);
+    racingSeason.addResult(monzaId, racer1Id, 1);
+    racingSeason.addResult(monacoId, racer2Id, 2);
+    racingSeason.addResult(spaId, racer2Id, 2);
+    racingSeason.addResult(monzaId, racer2Id, 2);
+  });
+
+  test('should add 1 point per next race won for a winning streak', () => {
+    const results = racingSeason.getResults();
+    expect(results.get(`${racer1Id}|Driver A`)).toBe(77);
+  });
+});
