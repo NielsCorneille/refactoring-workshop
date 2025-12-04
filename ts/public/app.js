@@ -1,9 +1,23 @@
 let currentData = { races: [], racers: [], results: [] };
+let leagueData = { leagueId: '', leagueName: '', currentSeasonId: '', seasons: [] };
+let highscoreData = { highscore: [] };
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+    loadLeagueData();
     loadSeasonData();
+    loadHighscore();
 });
+
+async function loadLeagueData() {
+    try {
+        const response = await fetch('/api/league');
+        leagueData = await response.json();
+        updateLeagueUI();
+    } catch (error) {
+        console.error('Error loading league data:', error);
+    }
+}
 
 async function loadSeasonData() {
     try {
@@ -14,6 +28,38 @@ async function loadSeasonData() {
     } catch (error) {
         console.error('Error loading season data:', error);
     }
+}
+
+async function loadHighscore() {
+    try {
+        const response = await fetch('/api/league/highscore');
+        highscoreData = await response.json();
+        updateHighscoreTable();
+    } catch (error) {
+        console.error('Error loading highscore:', error);
+    }
+}
+
+function updateLeagueUI() {
+    // Update league name
+    document.getElementById('leagueName').textContent = leagueData.leagueName;
+
+    // Update season dropdown
+    const seasonSelect = document.getElementById('seasonSelect');
+    seasonSelect.innerHTML = '';
+    leagueData.seasons.forEach((season, index) => {
+        const option = document.createElement('option');
+        option.value = season.id;
+        option.textContent = `Season ${index + 1} (${season.raceCount} races, ${season.racerCount} racers)`;
+        if (season.id === leagueData.currentSeasonId) {
+            option.selected = true;
+        }
+        seasonSelect.appendChild(option);
+    });
+
+    // Update season info
+    const currentSeasonIndex = leagueData.seasons.findIndex(s => s.id === leagueData.currentSeasonId);
+    document.getElementById('seasonInfo').textContent = `Currently viewing Season ${currentSeasonIndex + 1}`;
 }
 
 function updateUI() {
@@ -81,6 +127,34 @@ function updateResultsTable() {
     });
 }
 
+function updateHighscoreTable() {
+    const tbody = document.getElementById('highscoreTable');
+
+    if (highscoreData.highscore.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">No results yet</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = '';
+    highscoreData.highscore.forEach((result, index) => {
+        const tr = document.createElement('tr');
+
+        const tdRank = document.createElement('td');
+        tdRank.textContent = index + 1;
+
+        const tdName = document.createElement('td');
+        tdName.textContent = result.racerName;
+
+        const tdPoints = document.createElement('td');
+        tdPoints.textContent = result.points;
+
+        tr.appendChild(tdRank);
+        tr.appendChild(tdName);
+        tr.appendChild(tdPoints);
+        tbody.appendChild(tr);
+    });
+}
+
 async function showRacerDetails(racerId) {
     try {
         const response = await fetch(`/api/season/racer/${racerId}/positions`);
@@ -90,6 +164,52 @@ async function showRacerDetails(racerId) {
         alert(details || 'No race results yet');
     } catch (error) {
         console.error('Error loading racer positions:', error);
+    }
+}
+
+async function createNewSeason() {
+    if (!confirm('Create a new season? This will create a fresh season and switch to it.')) {
+        return;
+    }
+
+    try {
+        const response = await fetch('/api/league/season', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (response.ok) {
+            await loadLeagueData();
+            await loadSeasonData();
+            await loadHighscore();
+            alert('New season created successfully!');
+        }
+    } catch (error) {
+        console.error('Error creating season:', error);
+    }
+}
+
+async function switchSeason() {
+    const seasonId = document.getElementById('seasonSelect').value;
+
+    if (!seasonId) {
+        alert('Please select a season');
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/league/season/${seasonId}/switch`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (response.ok) {
+            await loadLeagueData();
+            await loadSeasonData();
+            alert('Switched to selected season!');
+        }
+    } catch (error) {
+        console.error('Error switching season:', error);
     }
 }
 
@@ -110,6 +230,7 @@ async function addRace() {
 
         if (response.ok) {
             document.getElementById('raceName').value = '';
+            await loadLeagueData();
             await loadSeasonData();
         }
     } catch (error) {
@@ -136,6 +257,7 @@ async function addRacer() {
         if (response.ok) {
             document.getElementById('racerName').value = '';
             document.getElementById('isAI').checked = false;
+            await loadLeagueData();
             await loadSeasonData();
         }
     } catch (error) {
@@ -162,6 +284,7 @@ async function addResult() {
 
         if (response.ok) {
             await loadSeasonData();
+            await loadHighscore();
         }
     } catch (error) {
         console.error('Error adding result:', error);

@@ -33,6 +33,19 @@
 <body>
     <div class="container">
         <h1>Racing Manager</h1>
+        <h4 id="leagueName" class="text-muted"></h4>
+
+        <div class="section">
+            <h5>Season Management</h5>
+            <div class="inline-form">
+                <select id="seasonSelect" class="form-select">
+                    <option value="">Loading seasons...</option>
+                </select>
+                <button class="btn btn-secondary" onclick="switchSeason()">Switch Season</button>
+                <button class="btn btn-success" onclick="createNewSeason()">New Season</button>
+            </div>
+            <p class="text-muted mt-2 mb-0" id="seasonInfo">Current Season Info</p>
+        </div>
 
         <div class="section">
             <div class="inline-form">
@@ -68,7 +81,7 @@
         </div>
 
         <div class="section">
-            <h3>Results</h3>
+            <h3>Current Season Results</h3>
             <table class="table table-striped">
                 <thead>
                     <tr>
@@ -79,6 +92,25 @@
                 <tbody id="resultsTable">
                     <tr>
                         <td colspan="2" class="text-center text-muted">No results yet</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h3>Overall League Highscore</h3>
+            <p class="text-muted">Aggregated points across all seasons</p>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Racer</th>
+                        <th>Total Points</th>
+                    </tr>
+                </thead>
+                <tbody id="highscoreTable">
+                    <tr>
+                        <td colspan="3" class="text-center text-muted">No results yet</td>
                     </tr>
                 </tbody>
             </table>
